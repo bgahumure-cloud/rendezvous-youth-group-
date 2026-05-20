@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendezvous Youth Group - Director Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #1abc9c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .sidebar .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav .nav-item {
+            padding: 12px 20px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-nav .nav-item:hover, .sidebar-nav .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            border-left: 3px solid white;
+        }
+        
+        .sidebar-nav .nav-item i {
+            margin-right: 10px;
+            width: 25px;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .impact-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .program-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .program-card:hover {
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -260px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .btn-reset {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            margin-left: 10px;
+        }
+        
+        .btn-reset:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h3><i class="bi bi-trophy"></i> Rendezvous Youth</h3>
+            <p>Director Dashboard</p>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item active" data-page="overview">
+                <i class="bi bi-speedometer2"></i> Overview
+            </div>
+            <div class="nav-item" data-page="programs">
+                <i class="bi bi-calendar-check"></i> Programs
+            </div>
+            <div class="nav-item" data-page="impact">
+                <i class="bi bi-graph-up"></i> Impact Metrics
+            </div>
+            <div class="nav-item" data-page="reports">
+                <i class="bi bi-file-text"></i> Reports
+            </div>
+            <div class="nav-item" data-page="budget">
+                <i class="bi bi-calculator"></i> Budget Overview
+            </div>
+            <div class="nav-item" data-page="partners">
+                <i class="bi bi-handshake"></i> Partners
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 id="page-title">Executive Overview</h4>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span><i class="bi bi-person-badge"></i> <span id="director-name">Dr. Sarah Mukasa</span></span>
+                    <button class="btn btn-sm btn-outline-danger ms-3" onclick="resetDemoData()">
+                        <i class="bi bi-arrow-repeat"></i> Reset Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="dashboard-content">
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==================== DEMO DATA (No API Required) ====================
+        let demoData = {
+            director: {
+                name: "Dr. Sarah Mukasa",
+                title: "Executive Director",
+                since: "2022"
+            },
+            youth: {
+                total: 1247,
+                selfReliant: 843,
+                enrolled: 1247,
+                trained: 986,
+                employed: 567,
+                byRegion: {
+                    "Kampala": 423,
+                    "Jinja": 287,
+                    "Gulu": 198,
+                    "Mbarara": 186,
+                    "Other": 153
+                }
+            },
+            impact: {
+                selfRelianceRate: 68,
+                trendData: [
+                    { quarter: "Q1 2025", enrolled: 980, selfReliant: 620 },
+                    { quarter: "Q2 2025", enrolled: 1050, selfReliant: 680 },
+                    { quarter: "Q3 2025", enrolled: 1120, selfReliant: 735 },
+                    { quarter: "Q4 2025", enrolled: 1180, selfReliant: 780 },
+                    { quarter: "Q1 2026", enrolled: 1247, selfReliant: 843 }
+                ],
+                youthMetrics: {
+                    enrolled: 1247,
+                    trained: 986,
+                    employed: 567,
+                    selfReliant: 843
+                },
+                communityMetrics: {
+                    screenings: 48,
+                    communities: 32,
+                    reached: 28500,
+                    actions: 124
+                },
+                successStories: [
+                    {
+                        youthName: "Grace Auma",
+                        youthPhoto: "https://via.placeholder.com/50?text=GA",
+                        story: "Started as a participant in our film training program, now runs her own production company employing 5 youth.",
+                        achievements: "Employed 5 youth, Revenue UGX 45M"
+                    },
+                    {
+                        youthName: "John Okello",
+                        youthPhoto: "https://via.placeholder.com/50?text=JO",
+                        story: "Graduated from MDD program and now leads community healing sessions using dance therapy.",
+                        achievements: "Reached 500+ youth, Featured on national TV"
+                    },
+                    {
+                        youthName: "Mary Nakato",
+                        youthPhoto: "https://via.placeholder.com/50?text=MN",
+                        story: "Advocacy training empowered her to become a youth representative at district council.",
+                        achievements: "Passed 3 youth-friendly policies"
+                    }
+                ]
+            },
+            finance: {
+                revenueGenerated: 78450000, // UGX
+                allocated: 125000000,
+                spent: 87600000,
+                remaining: 37400000,
+                utilization: 70,
+                categories: [
+                    { name: "Training Programs", allocated: 45000000, spent: 32500000, utilization: 72 },
+                    { name: "MDD & Arts", allocated: 28000000, spent: 21000000, utilization: 75 },
+                    { name: "Film & Media", allocated: 22000000, spent: 16800000, utilization: 76 },
+                    { name: "Advocacy", allocated: 18000000, spent: 12000000, utilization: 67 },
+                    { name: "Operations", allocated: 12000000, spent: 5300000, utilization: 44 }
+                ]
+            },
+            outreach: {
+                communitiesServed: 32,
+                totalReached: 28500
+            },
+            achievements: [
+                "85% increase in youth employment rates",
+                "Launched 12 community healing sessions",
+                "Partnered with 8 new organizations",
+                "Featured in 3 national media outlets"
+            ],
+            upcomingPrograms: [
+                {
+                    id: "P001",
+                    title: "Digital Skills Bootcamp",
+                    type: "Training",
+                    date: "April 15-20, 2026",
+                    location: "Kampala Innovation Hub",
+                    description: "Intensive training in web development and digital marketing",
+                    color: "#3498db",
+                    status: "active",
+                    progress: 65
+                },
+                {
+                    id: "P002",
+                    title: "Healing Through Arts",
+                    type: "MDD",
+                    date: "April 25, 2026",
+                    location: "Gulu Community Center",
+                    description: "Music and dance therapy for trauma healing",
+                    color: "#27ae60",
+                    status: "active",
+                    progress: 40
+                },
+                {
+                    id: "P003",
+                    title: "Youth Advocacy Summit",
+                    type: "Advocacy",
+                    date: "May 5-7, 2026",
+                    location: "Kampala Serena Hotel",
+                    description: "Policy dialogue on youth employment",
+                    color: "#f39c12",
+                    status: "active",
+                    progress: 30
+                },
+                {
+                    id: "P004",
+                    title: "Documentary Filmmaking Workshop",
+                    type: "Film",
+                    date: "May 12-18, 2026",
+                    location: "Jinja Film Studio",
+                    description: "Advanced documentary production skills",
+                    color: "#e74c3c",
+                    status: "active",
+                    progress: 20
+                }
+            ],
+            activePrograms: [
+                { id: "P001", name: "Digital Skills Bootcamp", type: "Training", status: "active", progress: 65 },
+                { id: "P002", name: "Healing Through Arts", type: "MDD", status: "active", progress: 40 },
+                { id: "P003", name: "Youth Advocacy Summit", type: "Advocacy", status: "active", progress: 30 },
+                { id: "P004", name: "Documentary Filmmaking", type: "Film", status: "active", progress: 20 },
+                { id: "P005", name: "Entrepreneurship Training", type: "Training", status: "completed", progress: 100 },
+                { id: "P006", name: "Community Outreach", type: "Advocacy", status: "completed", progress: 100 }
+            ],
+            recentAdvocacy: [
+                { title: "Youth Employment Bill", type: "Policy", views: 12500, shares: 890 },
+                { title: "Mental Health Awareness", type: "Campaign", views: 8900, shares: 654 },
+                { title: "Digital Rights Forum", type: "Webinar", views: 6700, shares: 432 }
+            ],
+            partners: [
+                { name: "Mastercard Foundation", contribution: "UGX 75M Grant", type: "Financial" },
+                { name: "UNICEF Uganda", contribution: "Technical Support & Resources", type: "Technical" },
+                { name: "MTN Uganda", contribution: "Connectivity & Equipment", type: "Corporate" },
+                { name: "Uganda Youth Council", contribution: "Policy Support", type: "Government" },
+                { name: "Kampala City Council", contribution: "Venue & Logistics", type: "Government" },
+                { name: "NITA-Uganda", contribution: "Training Materials", type: "Technical" }
+            ],
+            trainings: {
+                total: 24,
+                completed: 18,
+                completionRate: 75
+            },
+            mdd: {
+                total: 16,
+                withHealingFocus: 12,
+                revenue: 12500000
+            },
+            screenings: {
+                total: 48,
+                totalAttendees: 28500,
+                communitiesServed: 32
+            },
+            reports: [
+                { id: "R001", title: "Quarterly Impact Report - Q1 2026", date: "2026-03-31" },
+                { id: "R002", title: "Youth Progress Report 2025", date: "2025-12-15" },
+                { id: "R003", title: "Financial Summary 2025", date: "2025-12-20" },
+                { id: "R004", title: "Annual Impact Assessment", date: "2025-10-10" }
+            ]
+        };
+        
+        let currentPage = 'overview';
+        let charts = {};
+        
+        // Load/Save to localStorage
+        function loadSavedData() {
+            const saved = localStorage.getItem('rendezvous_director_demo');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(demoData, parsed);
+                } catch(e) {}
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('rendezvous_director_demo', JSON.stringify(demoData));
+        }
+        
+        function resetDemoData() {
+            if (confirm('Reset all demo data to original state? This will restore default values.')) {
+                localStorage.removeItem('rendezvous_director_demo');
+                location.reload();
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification alert alert-${type} alert-dismissible fade show`;
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            document.getElementById('director-name').innerText = demoData.director.name;
+            loadOverview();
+            setupNavigation();
+            setInterval(refreshData, 60000);
+        });
+        
+        function setupNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPage = this.dataset.page;
+                    document.getElementById('page-title').innerHTML = this.innerHTML.trim();
+                    
+                    switch(currentPage) {
+                        case 'overview': loadOverview(); break;
+                        case 'programs': loadPrograms(); break;
+                        case 'impact': loadImpactMetrics(); break;
+                        case 'reports': loadReports(); break;
+                        case 'budget': loadBudgetOverview(); break;
+                        case 'partners': loadPartners(); break;
+                    }
+                });
+            });
+        }
+        
+        function loadOverview() {
+            renderOverview();
+        }
+        
+        function renderOverview() {
+            const data = demoData;
+            const html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between">
+                                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                                <div class="text-end">
+                                    <div class="stat-value">${data.youth.total.toLocaleString()}</div>
+                                    <div class="text-muted">Total Youth</div>
+                                    <small class="text-success">${data.youth.selfReliant} self-reliant</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between">
+                                <div class="stat-icon"><i class="bi bi-trophy"></i></div>
+                                <div class="text-end">
+                                    <div class="stat-value">${data.impact.selfRelianceRate}%</div>
+                                    <div class="text-muted">Self-Reliance Rate</div>
+                                    <small>Target: 75%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between">
+                                <div class="stat-icon"><i class="bi bi-cash"></i></div>
+                                <div class="text-end">
+                                    <div class="stat-value">UGX ${(data.finance.revenueGenerated / 1000000).toFixed(1)}M</div>
+                                    <div class="text-muted">Revenue Generated</div>
+                                    <small>From talent development</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between">
+                                <div class="stat-icon"><i class="bi bi-globe"></i></div>
+                                <div class="text-end">
+                                    <div class="stat-value">${data.outreach.communitiesServed}</div>
+                                    <div class="text-muted">Communities Served</div>
+                                    <small>${data.outreach.totalReached.toLocaleString()} people reached</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="stat-card">
+                            <h5><i class="bi bi-graph-up"></i> Quarterly Impact Progress</h5>
+                            <canvas id="impactChart" height="100"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <h5><i class="bi bi-star"></i> Key Achievements</h5>
+                            ${data.achievements.map(achievement => `
+                                <div class="alert alert-success mb-2">
+                                    <i class="bi bi-check-circle"></i> ${achievement}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5><i class="bi bi-calendar"></i> Upcoming Programs</h5>
+                            ${data.upcomingPrograms.map(program => `
+                                <div class="program-card p-3 mb-2" style="border-left-color: ${program.color}">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>${program.title}</strong>
+                                        <span class="impact-badge">${program.type}</span>
+                                    </div>
+                                    <div class="small text-muted">${program.date} - ${program.location}</div>
+                                    <div>${program.description}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5><i class="bi bi-megaphone"></i> Recent Advocacy Impact</h5>
+                            ${data.recentAdvocacy.map(adv => `
+                                <div class="border-bottom pb-2 mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>${adv.title}</strong>
+                                        <span>${adv.views.toLocaleString()} views</span>
+                                    </div>
+                                    <div class="small text-muted">${adv.type} - ${adv.shares} shares</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <h5><i class="bi bi-handshake"></i> Strategic Partnerships</h5>
+                            <div class="row">
+                                ${data.partners.slice(0, 6).map(partner => `
+                                    <div class="col-md-4 mb-2">
+                                        <div class="border rounded p-2">
+                                            <strong>${partner.name}</strong>
+                                            <div class="small text-muted">${partner.contribution}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('dashboard-content').innerHTML = html;
+            renderImpactChart(demoData.impact.trendData);
+        }
+        
+        function renderImpactChart(data) {
+            const ctx = document.getElementById('impactChart')?.getContext('2d');
+            if (ctx) {
+                if (charts.impact) charts.impact.destroy();
+                charts.impact = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(d => d.quarter),
+                        datasets: [
+                            {
+                                label: 'Youth Enrolled',
+                                data: data.map(d => d.enrolled),
+                                borderColor: '#3498db',
+                                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Self-Reliant',
+                                data: data.map(d => d.selfReliant),
+                                borderColor: '#27ae60',
+                                backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { position: 'top' }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function loadPrograms() {
+            const data = demoData;
+            const html = `
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card">
+                            <h5>Training Programs</h5>
+                            <div class="stat-value">${data.trainings.total}</div>
+                            <div>${data.trainings.completed} completed</div>
+                            <div class="mt-2">
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" style="width: ${data.trainings.completionRate}%"></div>
+                                </div>
+                                <small>${data.trainings.completionRate}% completion rate</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card">
+                            <h5>MDD Performances</h5>
+                            <div class="stat-value">${data.mdd.total}</div>
+                            <div>${data.mdd.withHealingFocus} with healing focus</div>
+                            <div>UGX ${(data.mdd.revenue / 1000000).toFixed(1)}M generated</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card">
+                            <h5>Film Screenings</h5>
+                            <div class="stat-value">${data.screenings.total}</div>
+                            <div>${data.screenings.totalAttendees.toLocaleString()} attendees</div>
+                            <div>${data.screenings.communitiesServed} communities</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h5>Active Programs</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                 <tr><th>Program</th><th>Type</th><th>Status</th><th>Progress</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.activePrograms.filter(p => p.status === 'active').map(program => `
+                                    <tr>
+                                        <td><strong>${program.name}</strong></td>
+                                        <td><span class="badge bg-info">${program.type}</span></td>
+                                        <td><span class="badge bg-success">${program.status}</span></td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-primary" style="width: ${program.progress}%">${program.progress}%</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewProgram('${program.id}')">
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadImpactMetrics() {
+            const data = demoData;
+            const html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5>Youth Impact</h5>
+                            <canvas id="youthImpactChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5>Community Impact</h5>
+                            <canvas id="communityImpactChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <h5>Success Stories</h5>
+                            ${data.impact.successStories.map(story => `
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <img src="${story.youthPhoto}" 
+                                                 class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
+                                            <div>
+                                                <h6>${story.youthName}</h6>
+                                                <p class="mb-1">${story.story}</p>
+                                                <small class="text-muted">Achieved: ${story.achievements}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+            
+            renderYouthImpactChart(data.impact.youthMetrics);
+            renderCommunityImpactChart(data.impact.communityMetrics);
+        }
+        
+        function renderYouthImpactChart(data) {
+            const ctx = document.getElementById('youthImpactChart')?.getContext('2d');
+            if (ctx) {
+                if (charts.youth) charts.youth.destroy();
+                charts.youth = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Enrolled', 'Trained', 'Employed', 'Self-Reliant'],
+                        datasets: [{
+                            label: 'Youth',
+                            data: [data.enrolled, data.trained, data.employed, data.selfReliant],
+                            backgroundColor: ['#3498db', '#27ae60', '#f39c12', '#e74c3c']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+        }
+        
+        function renderCommunityImpactChart(data) {
+            const ctx = document.getElementById('communityImpactChart')?.getContext('2d');
+            if (ctx) {
+                if (charts.community) charts.community.destroy();
+                charts.community = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Screenings', 'Communities', 'Reached (K)', 'Actions Taken'],
+                        datasets: [{
+                            label: 'Outreach',
+                            data: [data.screenings, data.communities, data.reached / 1000, data.actions],
+                            backgroundColor: '#1abc9c'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+        }
+        
+        function loadReports() {
+            const html = `
+                <div class="stat-card">
+                    <h5>Generate Reports</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Quarterly Impact Report</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="generateReport('quarterly')">
+                                        <i class="bi bi-download"></i> Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Youth Progress Report</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="generateReport('youth')">
+                                        <i class="bi bi-download"></i> Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Financial Summary</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="generateReport('financial')">
+                                        <i class="bi bi-download"></i> Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h5>Recent Reports</h5>
+                    <div class="list-group">
+                        ${demoData.reports.map(report => `
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-pdf-fill text-danger"></i> ${report.title}
+                                    <br><small class="text-muted">${new Date(report.date).toLocaleDateString()}</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary" onclick="downloadReport('${report.id}')">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadBudgetOverview() {
+            const data = demoData.finance;
+            const html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5>Budget Allocation</h5>
+                            <canvas id="budgetAllocationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5>Budget Utilization</h5>
+                            <div class="text-center">
+                                <div class="display-4">${data.utilization}%</div>
+                                <div class="progress mt-3" style="height: 30px;">
+                                    <div class="progress-bar bg-${data.utilization > 80 ? 'danger' : 'success'}" 
+                                         style="width: ${data.utilization}%">
+                                        ${data.utilization}%
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div>Allocated: UGX ${(data.allocated / 1000000).toFixed(1)}M</div>
+                                    <div>Spent: UGX ${(data.spent / 1000000).toFixed(1)}M</div>
+                                    <div>Remaining: UGX ${(data.remaining / 1000000).toFixed(1)}M</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h5>Expense Breakdown by Category</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Category</th><th>Allocated</th><th>Spent</th><th>Remaining</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.categories.map(cat => `
+                                    <tr>
+                                        <td><strong>${cat.name}</strong></td>
+                                        <td>UGX ${(cat.allocated / 1000000).toFixed(1)}M</td>
+                                        <td>UGX ${(cat.spent / 1000000).toFixed(1)}M</td>
+                                        <td>UGX ${((cat.allocated - cat.spent) / 1000000).toFixed(1)}M</td>
+                                        <td>
+                                            <div class="progress" style="width: 100px;">
+                                                <div class="progress-bar bg-${cat.utilization > 80 ? 'danger' : 'success'}" 
+                                                     style="width: ${cat.utilization}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+            renderBudgetAllocationChart(data.categories);
+        }
+        
+        function renderBudgetAllocationChart(categories) {
+            const ctx = document.getElementById('budgetAllocationChart')?.getContext('2d');
+            if (ctx) {
+                if (charts.budget) charts.budget.destroy();
+                charts.budget = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categories.map(c => c.name),
+                        datasets: [{
+                            data: categories.map(c => c.allocated),
+                            backgroundColor: ['#3498db', '#e74c3c', '#f39c12', '#27ae60', '#1abc9c']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+        }
+        
+        function loadPartners() {
+            const html = `
+                <div class="stat-card">
+                    <h5><i class="bi bi-handshake"></i> Partner Organizations</h5>
+                    <div class="row">
+                        ${demoData.partners.map(partner => `
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6><i class="bi bi-building"></i> ${partner.name}</h6>
+                                        <p class="small text-muted">${partner.type || 'Partner'}</p>
+                                        <div><i class="bi bi-gift"></i> ${partner.contribution}</div>
+                                        <div class="mt-2">
+                                            <span class="badge bg-success">Active Partner</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function refreshData() {
+            showToast('Dashboard data refreshed', 'info');
+            if (currentPage === 'overview') loadOverview();
+        }
+        
+        // Global functions for buttons
+        window.viewProgram = function(programId) {
+            showToast(`Viewing program details: ${programId}`, 'info');
+        };
+        
+        window.generateReport = function(type) {
+            showToast(`Generating ${type} report...`, 'success');
+        };
+        
+        window.downloadReport = function(reportId) {
+            showToast(`Downloading report: ${reportId}`, 'success');
+        };
+        
+        window.resetDemoData = resetDemoData;
+    </script>
+</body>
+</html>

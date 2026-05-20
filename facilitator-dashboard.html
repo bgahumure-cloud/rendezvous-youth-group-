@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendezvous Youth Group - Facilitator Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .sidebar .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-nav .nav-item:hover, .sidebar-nav .nav-item.active {
+            background: rgba(52, 152, 219, 0.3);
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .sidebar-nav .nav-item i {
+            margin-right: 10px;
+            width: 25px;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        
+        .task-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .task-priority-high { border-left-color: var(--danger-color); }
+        .task-priority-medium { border-left-color: var(--warning-color); }
+        .task-priority-low { border-left-color: var(--success-color); }
+        
+        .attendance-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .attendance-present { background: var(--success-color); color: white; }
+        .attendance-absent { background: var(--danger-color); color: white; }
+        .attendance-late { background: var(--warning-color); color: white; }
+        .attendance-pending { background: #e0e0e0; }
+        
+        .quick-action {
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 10px;
+        }
+        
+        .quick-action:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -260px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h3><i class="bi bi-person-badge"></i> Rendezvous</h3>
+            <p>Facilitator Portal</p>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item active" data-page="dashboard">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </div>
+            <div class="nav-item" data-page="attendance">
+                <i class="bi bi-calendar-check"></i> Attendance
+            </div>
+            <div class="nav-item" data-page="youth">
+                <i class="bi bi-people"></i> My Youth
+            </div>
+            <div class="nav-item" data-page="trainings">
+                <i class="bi bi-mortarboard"></i> Trainings
+            </div>
+            <div class="nav-item" data-page="mdd">
+                <i class="bi bi-music-note-beamed"></i> MDD Sessions
+            </div>
+            <div class="nav-item" data-page="reports">
+                <i class="bi bi-file-text"></i> Reports
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 id="page-title">My Dashboard</h4>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span><i class="bi bi-person-circle"></i> <span id="facilitator-name">James Mwangi</span></span>
+                    <button class="btn btn-sm btn-outline-danger ms-3" onclick="resetDemoData()">
+                        <i class="bi bi-arrow-repeat"></i> Reset Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="dashboard-content">
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==================== DEMO DATA (No API Required) ====================
+        let demoData = {
+            facilitator: {
+                id: "fac_001",
+                name: "James Mwangi",
+                email: "james.mwangi@rendezvous.org",
+                role: "Senior Facilitator",
+                since: "2023"
+            },
+            myYouth: 48,
+            attendance: {
+                today: 42,
+                rate: 87.5,
+                history: [
+                    { date: "2026-03-18", total: 48, present: 41, absent: 4, late: 3, rate: 85 },
+                    { date: "2026-03-19", total: 48, present: 43, absent: 3, late: 2, rate: 90 },
+                    { date: "2026-03-20", total: 48, present: 42, absent: 4, late: 2, rate: 87.5 },
+                    { date: "2026-03-21", total: 48, present: 44, absent: 2, late: 2, rate: 92 },
+                    { date: "2026-03-22", total: 48, present: 45, absent: 1, late: 2, rate: 94 }
+                ]
+            },
+            pendingTasks: 5,
+            upcomingSessions: 3,
+            tasks: [
+                { id: "T001", title: "Review Youth Progress Reports", priority: "high", status: "pending", dueDate: "2026-03-25", description: "Complete quarterly assessments for all assigned youth" },
+                { id: "T002", title: "Prepare MDD Session Materials", priority: "medium", status: "pending", dueDate: "2026-03-24", description: "Gather music and props for Friday's healing session" },
+                { id: "T003", title: "Submit Attendance Records", priority: "high", status: "completed", dueDate: "2026-03-22", description: "Finalize weekly attendance for reporting" },
+                { id: "T004", title: "Youth Mentorship Check-in", priority: "low", status: "pending", dueDate: "2026-03-26", description: "One-on-one sessions with 5 youth" },
+                { id: "T005", title: "Training Material Update", priority: "medium", status: "pending", dueDate: "2026-03-28", description: "Revise digital skills curriculum" }
+            ],
+            todaySchedule: [
+                { id: "S001", time: "9:00 AM - 11:00 AM", type: "Training", title: "Digital Literacy Workshop", location: "Computer Lab A", attendees: 24 },
+                { id: "S002", time: "11:30 AM - 1:00 PM", type: "MDD", title: "Healing Through Music", location: "Dance Studio", attendees: 32 },
+                { id: "S003", time: "2:00 PM - 4:00 PM", type: "Advocacy", title: "Youth Voices Forum", location: "Conference Room", attendees: 28 }
+            ],
+            youth: [
+                { id: "Y001", name: "Grace Auma", age: 19, nationality: "Ugandan", selfReliant: true, trainingsAttended: 4, performances: 3, status: "active", progress: 85, notes: "Excellent progress in digital skills" },
+                { id: "Y002", name: "John Okello", age: 22, nationality: "Ugandan", selfReliant: false, trainingsAttended: 2, performances: 1, status: "active", progress: 45, notes: "Shows great potential in music" },
+                { id: "Y003", name: "Mary Nakato", age: 20, nationality: "Ugandan", selfReliant: true, trainingsAttended: 5, performances: 4, status: "active", progress: 92, notes: "Leading advocacy initiatives" },
+                { id: "Y004", name: "Peter Ochieng", age: 21, nationality: "Kenyan", selfReliant: false, trainingsAttended: 3, performances: 2, status: "active", progress: 58, notes: "Improving in film production" },
+                { id: "Y005", name: "Sarah Nambi", age: 18, nationality: "Ugandan", selfReliant: false, trainingsAttended: 1, performances: 1, status: "active", progress: 30, notes: "New member, enthusiastic" },
+                { id: "Y006", name: "David Mutebi", age: 23, nationality: "Ugandan", selfReliant: true, trainingsAttended: 6, performances: 5, status: "active", progress: 95, notes: "Mentoring younger youth" },
+                { id: "Y007", name: "Esther Achieng", age: 20, nationality: "Kenyan", selfReliant: false, trainingsAttended: 2, performances: 2, status: "active", progress: 52, notes: "Strong in performing arts" },
+                { id: "Y008", name: "Robert Ssenyonga", age: 24, nationality: "Ugandan", selfReliant: true, trainingsAttended: 7, performances: 6, status: "active", progress: 88, notes: "Running small business" }
+            ],
+            trainings: {
+                upcoming: [
+                    { id: "T001", title: "Advanced Web Development", startDate: "2026-04-05", location: "Computer Lab", capacity: 30, attendees: 24 },
+                    { id: "T002", title: "Entrepreneurship Skills", startDate: "2026-04-12", location: "Conference Room", capacity: 35, attendees: 28 }
+                ],
+                active: [
+                    { id: "TA001", title: "Digital Marketing", status: "ongoing", progress: 65, capacity: 25, attendees: 22 },
+                    { id: "TA002", title: "Graphic Design", status: "ongoing", progress: 70, capacity: 20, attendees: 18 }
+                ]
+            },
+            mdd: {
+                today: [
+                    { id: "M001", name: "Healing Through Dance", time: "11:30 AM - 1:00 PM", location: "Dance Studio", description: "Therapeutic dance session focusing on emotional release", participants: 32 }
+                ],
+                upcoming: [
+                    { id: "M002", name: "Community Music Festival", date: "2026-04-10", location: "City Park", expectedAttendees: 100 },
+                    { id: "M003", name: "Drama for Change", date: "2026-04-15", location: "Community Hall", expectedAttendees: 50 }
+                ],
+                healingImpact: {
+                    totalSessions: 24,
+                    youthReached: 156,
+                    reportedHealing: 89,
+                    testimonials: 12
+                }
+            },
+            reports: [
+                { id: "R001", title: "March Attendance Summary", createdAt: "2026-03-22" },
+                { id: "R002", title: "Youth Progress Report - Q1 2026", createdAt: "2026-03-15" },
+                { id: "R003", title: "MDD Impact Assessment", createdAt: "2026-03-10" },
+                { id: "R004", title: "Training Completion Report", createdAt: "2026-03-05" }
+            ]
+        };
+        
+        let currentPage = 'dashboard';
+        let currentAttendanceData = [];
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification alert alert-${type} alert-dismissible fade show`;
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function loadSavedData() {
+            const saved = localStorage.getItem('rendezvous_facilitator_demo');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(demoData, parsed);
+                } catch(e) {}
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('rendezvous_facilitator_demo', JSON.stringify(demoData));
+        }
+        
+        function resetDemoData() {
+            if (confirm('Reset all demo data to original state?')) {
+                localStorage.removeItem('rendezvous_facilitator_demo');
+                location.reload();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            document.getElementById('facilitator-name').innerText = demoData.facilitator.name;
+            loadDashboard();
+            setupNavigation();
+            setInterval(refreshData, 30000);
+        });
+        
+        function setupNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPage = this.dataset.page;
+                    document.getElementById('page-title').innerText = this.innerText.trim();
+                    
+                    switch(currentPage) {
+                        case 'dashboard': loadDashboard(); break;
+                        case 'attendance': loadAttendance(); break;
+                        case 'youth': loadMyYouth(); break;
+                        case 'trainings': loadMyTrainings(); break;
+                        case 'mdd': loadMDDSessions(); break;
+                        case 'reports': loadReports(); break;
+                    }
+                });
+            });
+        }
+        
+        function loadDashboard() {
+            renderDashboard();
+        }
+        
+        function renderDashboard() {
+            const data = demoData;
+            const html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="task-card">
+                            <div class="text-center">
+                                <i class="bi bi-people-fill" style="font-size: 2rem; color: var(--secondary-color);"></i>
+                                <div class="display-6">${data.myYouth}</div>
+                                <div class="text-muted">Youth Assigned</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="task-card">
+                            <div class="text-center">
+                                <i class="bi bi-calendar-check" style="font-size: 2rem; color: var(--success-color);"></i>
+                                <div class="display-6">${data.attendance.today}</div>
+                                <div class="text-muted">Present Today</div>
+                                <small>${data.attendance.rate}% attendance rate</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="task-card">
+                            <div class="text-center">
+                                <i class="bi bi-journal-bookmark-fill" style="font-size: 2rem; color: var(--warning-color);"></i>
+                                <div class="display-6">${data.pendingTasks}</div>
+                                <div class="text-muted">Pending Tasks</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="task-card">
+                            <div class="text-center">
+                                <i class="bi bi-trophy" style="font-size: 2rem; color: #f39c12;"></i>
+                                <div class="display-6">${data.upcomingSessions}</div>
+                                <div class="text-muted">Upcoming Sessions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="task-card">
+                            <h5><i class="bi bi-list-check"></i> My Tasks</h5>
+                            ${data.tasks.map(task => `
+                                <div class="task-card task-priority-${task.priority} mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>${task.title}</strong>
+                                        <span class="badge bg-${task.status === 'completed' ? 'success' : 'warning'}">${task.status}</span>
+                                    </div>
+                                    <div class="small text-muted">Due: ${new Date(task.dueDate).toLocaleDateString()}</div>
+                                    <div>${task.description}</div>
+                                    ${task.status !== 'completed' ? `
+                                        <button class="btn btn-sm btn-success mt-2" onclick="completeTask('${task.id}')">
+                                            <i class="bi bi-check-lg"></i> Mark Complete
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="task-card">
+                            <h5><i class="bi bi-calendar-week"></i> Today's Schedule</h5>
+                            ${data.todaySchedule.map(session => `
+                                <div class="alert alert-info mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>${session.time}</strong>
+                                        <span class="badge bg-primary">${session.type}</span>
+                                    </div>
+                                    <div><strong>${session.title}</strong></div>
+                                    <div class="small"><i class="bi bi-geo-alt"></i> ${session.location}</div>
+                                    <div class="small"><i class="bi bi-people"></i> ${session.attendees} registered</div>
+                                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="startSession('${session.id}')">
+                                        <i class="bi bi-play-fill"></i> Start Session
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="task-card">
+                            <h5><i class="bi bi-lightning-charge"></i> Quick Actions</h5>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="quick-action" onclick="takeAttendance()">
+                                        <i class="bi bi-calendar-check" style="font-size: 1.5rem;"></i>
+                                        <div>Take Attendance</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="quick-action" onclick="recordProgress()">
+                                        <i class="bi bi-graph-up" style="font-size: 1.5rem;"></i>
+                                        <div>Record Progress</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="quick-action" onclick="addNote()">
+                                        <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
+                                        <div>Add Youth Note</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="quick-action" onclick="sendMessage()">
+                                        <i class="bi bi-chat-dots" style="font-size: 1.5rem;"></i>
+                                        <div>Send Message</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadAttendance() {
+            const html = `
+                <div class="task-card">
+                    <h5><i class="bi bi-calendar-check"></i> Take Attendance - ${new Date().toLocaleDateString()}</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Name</th><th>Age</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody id="attendanceTableBody">
+                                ${demoData.youth.map((y, index) => `
+                                    <tr>
+                                        <td><strong>${y.name}</strong></td>
+                                        <td>${y.age}</td>
+                                        <td>
+                                            <select class="form-select attendance-status" data-youth="${y.id}" style="width: 120px;">
+                                                <option value="present">Present</option>
+                                                <option value="absent">Absent</option>
+                                                <option value="late">Late</option>
+                                                <option value="excused">Excused</option>
+                                            </select>
+                                        </td>
+                                        <td><input type="time" class="form-control checkin" data-youth="${y.id}" value="09:00"></td>
+                                        <td><input type="time" class="form-control checkout" data-youth="${y.id}" value="16:00"></td>
+                                        <td><input type="text" class="form-control notes" data-youth="${y.id}" placeholder="Notes"></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="submitAttendance()">
+                        <i class="bi bi-save"></i> Save Attendance
+                    </button>
+                </div>
+                
+                <div class="task-card mt-3">
+                    <h5>Recent Attendance Records</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr><th>Date</th><th>Total</th><th>Present</th><th>Absent</th><th>Late</th><th>Rate</th> </tr>
+                            </thead>
+                            <tbody>
+                                ${demoData.attendance.history.map(h => `
+                                    <tr>
+                                        <td>${new Date(h.date).toLocaleDateString()}</td>
+                                        <td>${h.total}</td>
+                                        <td class="text-success">${h.present}</td>
+                                        <td class="text-danger">${h.absent}</td>
+                                        <td class="text-warning">${h.late}</td>
+                                        <td>${h.rate}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadMyYouth() {
+            const html = `
+                <div class="task-card">
+                    <h5><i class="bi bi-people"></i> My Youth (${demoData.youth.length})</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchYouth" placeholder="Search by name...">
+                        <button class="btn btn-outline-secondary" onclick="searchYouth()">Search</button>
+                    </div>
+                    <div class="row" id="youthList">
+                        ${demoData.youth.map(y => `
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h6>${y.name}</h6>
+                                            <span class="badge bg-${y.selfReliant ? 'success' : 'secondary'}">
+                                                ${y.selfReliant ? 'Self-Reliant' : 'In Progress'}
+                                            </span>
+                                        </div>
+                                        <div class="small text-muted">${y.age} years • ${y.nationality}</div>
+                                        <hr>
+                                        <div class="small">
+                                            <div><i class="bi bi-mortarboard"></i> ${y.trainingsAttended} trainings</div>
+                                            <div><i class="bi bi-music-note"></i> ${y.performances} performances</div>
+                                            <div class="mt-1">
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-primary" style="width: ${y.progress}%"></div>
+                                                </div>
+                                                <small>Progress: ${y.progress}%</small>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary mt-2 w-100" onclick="viewYouth('${y.id}')">
+                                            <i class="bi bi-eye"></i> View Profile
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadMyTrainings() {
+            const data = demoData.trainings;
+            const html = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="task-card">
+                            <h5><i class="bi bi-calendar-plus"></i> Upcoming Trainings</h5>
+                            ${data.upcoming.map(t => `
+                                <div class="alert alert-info mb-2">
+                                    <strong>${t.title}</strong>
+                                    <div><i class="bi bi-calendar"></i> ${new Date(t.startDate).toLocaleDateString()}</div>
+                                    <div><i class="bi bi-geo-alt"></i> ${t.location}</div>
+                                    <div><i class="bi bi-people"></i> ${t.attendees}/${t.capacity} registered</div>
+                                    <button class="btn btn-sm btn-primary mt-2 w-100" onclick="viewTraining('${t.id}')">
+                                        <i class="bi bi-journal-bookmark"></i> Prepare Session
+                                    </button>
+                                </div>
+                            `).join('')}
+                            ${data.upcoming.length === 0 ? '<p class="text-muted">No upcoming trainings</p>' : ''}
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="task-card">
+                            <h5><i class="bi bi-play-circle"></i> Active Trainings</h5>
+                            ${data.active.map(t => `
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h6>${t.title}</h6>
+                                            <span class="badge bg-success">${t.status}</span>
+                                        </div>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-primary" style="width: ${t.progress}%">${t.progress}%</div>
+                                        </div>
+                                        <div><i class="bi bi-people"></i> Attendees: ${t.attendees}/${t.capacity}</div>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="takeTrainingAttendance('${t.id}')">
+                                                <i class="bi bi-calendar-check"></i> Take Attendance
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success ms-2" onclick="recordTrainingProgress('${t.id}')">
+                                                <i class="bi bi-graph-up"></i> Record Progress
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadMDDSessions() {
+            const data = demoData.mdd;
+            const html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="task-card">
+                            <h5><i class="bi bi-music-note-beamed"></i> Today's MDD Sessions</h5>
+                            ${data.today.map(s => `
+                                <div class="alert alert-success mb-2">
+                                    <strong>${s.name}</strong>
+                                    <div><i class="bi bi-clock"></i> ${s.time}</div>
+                                    <div><i class="bi bi-geo-alt"></i> ${s.location}</div>
+                                    <div>${s.description}</div>
+                                    <div><i class="bi bi-people"></i> ${s.participants} participants</div>
+                                    <button class="btn btn-sm btn-primary mt-2" onclick="startMDDSession('${s.id}')">
+                                        <i class="bi bi-play-fill"></i> Start Session
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="task-card">
+                            <h5><i class="bi bi-heart-fill text-danger"></i> Healing Impact Tracking</h5>
+                            <div class="row text-center mb-3">
+                                <div class="col-4">
+                                    <div class="display-6">${data.healingImpact.totalSessions}</div>
+                                    <small>Sessions</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="display-6">${data.healingImpact.youthReached}</div>
+                                    <small>Youth Reached</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="display-6">${data.healingImpact.reportedHealing}%</div>
+                                    <small>Reported Healing</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary w-100 mt-2" onclick="recordHealingImpact()">
+                                <i class="bi bi-plus-circle"></i> Record Healing Impact
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-card mt-3">
+                    <h5><i class="bi bi-calendar-week"></i> Upcoming MDD Sessions</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Session Name</th><th>Date</th><th>Location</th><th>Expected Attendees</th><th>Action</th> </tr>
+                            </thead>
+                            <tbody>
+                                ${data.upcoming.map(s => `
+                                    <tr>
+                                        <td><strong>${s.name}</strong></td>
+                                        <td>${new Date(s.date).toLocaleDateString()}</td>
+                                        <td>${s.location}</td>
+                                        <td>${s.expectedAttendees}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="prepareMDD('${s.id}')">
+                                                <i class="bi bi-journal-bookmark"></i> Prepare
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        function loadReports() {
+            const html = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="task-card">
+                            <h5><i class="bi bi-file-earmark-text"></i> Generate Report</h5>
+                            <select class="form-select mb-2" id="reportType">
+                                <option value="attendance">Attendance Report</option>
+                                <option value="progress">Youth Progress Report</option>
+                                <option value="training">Training Summary</option>
+                                <option value="mdd">MDD Impact Report</option>
+                            </select>
+                            <input type="month" class="form-control mb-2" id="reportPeriod" value="2026-03">
+                            <button class="btn btn-primary w-100" onclick="generateFacilitatorReport()">
+                                <i class="bi bi-download"></i> Generate Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="task-card">
+                            <h5><i class="bi bi-archive"></i> My Reports</h5>
+                            <div class="list-group">
+                                ${demoData.reports.map(r => `
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-text-fill text-primary"></i> ${r.title}
+                                            <br><small class="text-muted">${new Date(r.createdAt).toLocaleDateString()}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="downloadReport('${r.id}')">
+                                            <i class="bi bi-download"></i> Download
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboard-content').innerHTML = html;
+        }
+        
+        // Action Functions
+        function submitAttendance() {
+            const statuses = document.querySelectorAll('.attendance-status');
+            const attendanceData = [];
+            
+            statuses.forEach(select => {
+                const youthId = select.dataset.youth;
+                const status = select.value;
+                const checkin = document.querySelector(`.checkin[data-youth="${youthId}"]`)?.value || '';
+                const checkout = document.querySelector(`.checkout[data-youth="${youthId}"]`)?.value || '';
+                const notes = document.querySelector(`.notes[data-youth="${youthId}"]`)?.value || '';
+                
+                attendanceData.push({ youthId, status, checkin, checkout, notes });
+            });
+            
+            const presentCount = attendanceData.filter(a => a.status === 'present').length;
+            const rate = ((presentCount / attendanceData.length) * 100).toFixed(1);
+            
+            demoData.attendance.today = presentCount;
+            demoData.attendance.rate = rate;
+            demoData.attendance.history.unshift({
+                date: new Date().toISOString().slice(0, 10),
+                total: attendanceData.length,
+                present: presentCount,
+                absent: attendanceData.filter(a => a.status === 'absent').length,
+                late: attendanceData.filter(a => a.status === 'late').length,
+                rate: rate
+            });
+            demoData.attendance.history = demoData.attendance.history.slice(0, 10);
+            
+            saveData();
+            showToast(`Attendance saved! ${presentCount}/${attendanceData.length} present (${rate}%)`, 'success');
+            loadAttendance();
+        }
+        
+        function completeTask(taskId) {
+            const task = demoData.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'completed';
+                demoData.pendingTasks = demoData.tasks.filter(t => t.status !== 'completed').length;
+                saveData();
+                showToast(`Task "${task.title}" completed!`, 'success');
+                loadDashboard();
+            }
+        }
+        
+        function takeAttendance() {
+            document.querySelector('[data-page="attendance"]').click();
+        }
+        
+        function recordProgress() {
+            showToast('Record youth progress - Select a youth to update progress', 'info');
+        }
+        
+        function addNote() {
+            const note = prompt('Enter note for youth:');
+            if (note) {
+                showToast('Note added successfully!', 'success');
+            }
+        }
+        
+        function sendMessage() {
+            showToast('Message feature - Coming soon', 'info');
+        }
+        
+        function viewYouth(youthId) {
+            const youth = demoData.youth.find(y => y.id === youthId);
+            if (youth) {
+                alert(`Youth Profile\n\nName: ${youth.name}\nAge: ${youth.age}\nProgress: ${youth.progress}%\nStatus: ${youth.selfReliant ? 'Self-Reliant' : 'In Progress'}\nNotes: ${youth.notes}`);
+            }
+        }
+        
+        function viewTraining(trainingId) {
+            showToast(`Preparing for training: ${trainingId}`, 'info');
+        }
+        
+        function takeTrainingAttendance(trainingId) {
+            showToast(`Taking attendance for training: ${trainingId}`, 'info');
+        }
+        
+        function recordTrainingProgress(trainingId) {
+            const progress = prompt('Enter progress percentage (0-100):', '50');
+            if (progress && !isNaN(progress)) {
+                const training = demoData.trainings.active.find(t => t.id === trainingId);
+                if (training) {
+                    training.progress = parseInt(progress);
+                    saveData();
+                    showToast(`Progress updated to ${progress}%`, 'success');
+                    loadMyTrainings();
+                }
+            }
+        }
+        
+        function startMDDSession(sessionId) {
+            showToast(`Starting MDD session...`, 'success');
+        }
+        
+        function recordHealingImpact() {
+            const impact = prompt('Record healing impact (description):');
+            if (impact) {
+                demoData.mdd.healingImpact.reportedHealing = Math.min(100, demoData.mdd.healingImpact.reportedHealing + 5);
+                saveData();
+                showToast('Healing impact recorded!', 'success');
+                loadMDDSessions();
+            }
+        }
+        
+        function prepareMDD(sessionId) {
+            showToast(`Preparing for MDD session`, 'info');
+        }
+        
+        function generateFacilitatorReport() {
+            const type = document.getElementById('reportType').value;
+            const period = document.getElementById('reportPeriod').value;
+            showToast(`Generating ${type} report for ${period}...`, 'success');
+        }
+        
+        function downloadReport(reportId) {
+            showToast(`Downloading report: ${reportId}`, 'success');
+        }
+        
+        function startSession(sessionId) {
+            showToast(`Starting session: ${sessionId}`, 'success');
+        }
+        
+        function searchYouth() {
+            const searchTerm = document.getElementById('searchYouth').value.toLowerCase();
+            const youthCards = document.querySelectorAll('#youthList .col-md-4');
+            youthCards.forEach(card => {
+                const name = card.querySelector('h6')?.innerText.toLowerCase() || '';
+                if (name.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function refreshData() {
+            if (currentPage === 'dashboard') loadDashboard();
+            else if (currentPage === 'attendance') loadAttendance();
+            else if (currentPage === 'youth') loadMyYouth();
+            showToast('Dashboard refreshed', 'info');
+        }
+    </script>
+</body>
+</html>

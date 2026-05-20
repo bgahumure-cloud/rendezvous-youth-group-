@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rendezvous Youth Group - Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+              url('https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px;
+  gap: 60px;
+  min-height: 100vh;
+  flex-wrap: wrap;
+}
+
+.left {
+  max-width: 550px;
+}
+
+.left h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #fff;
+  position: relative;
+}
+
+.left h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: #fff;
+}
+
+.left p {
+  font-size: 15px;
+  color: #ddd;
+  line-height: 1.8;
+  margin-bottom: 30px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 12px 30px;
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.login-box {
+  width: 380px;
+  padding: 35px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  padding-left: 20px;
+}
+
+.input-group input::placeholder {
+  color: #ccc;
+}
+
+.input-group input:focus {
+  background: rgba(255,255,255,0.15);
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+.options a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.options a:hover {
+  text-decoration: underline;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  border: none;
+  border-radius: 30px;
+  color: #000;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-btn:hover {
+  background: #ddd;
+  transform: translateY(-2px);
+}
+
+.signup {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.signup a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signup a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  min-height: 20px;
+}
+
+.success-message {
+  color: #4caf50;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  min-height: 20px;
+}
+
+@media (max-width: 968px) {
+  .container {
+    flex-direction: column;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .left h1::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .login-box {
+    width: 100%;
+    max-width: 380px;
+  }
+}
+</style>
+</head>
+<body>
+<section class="container">
+  <div class="left">
+    <h1>Rendezvous Youth Group</h1>
+    <p>Empowering young refugees to be responsible and self-reliant through advocacy, training, edutainment, and community engagement.</p>
+    <button class="btn" onclick="alert('Welcome! Please login or sign up to continue.')">Get Started</button>
+  </div>
+  <div class="login-box">
+    <h2>Member Login</h2>
+    <div class="input-group">
+      <input type="email" id="email" placeholder="Enter your email" required />
+    </div>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Enter your password" required />
+    </div>
+    <div class="options">
+      <label><input type="checkbox" id="rememberMe" /> Remember me</label>
+      <a href="#" onclick="alert('Contact admin to reset password')">Forgot Password?</a>
+    </div>
+    <button class="login-btn" onclick="login()">Login</button>
+    <div id="message" class="error-message"></div>
+    <div class="signup">
+      Not a member? <a href="signup.html">Sign up now</a>
+    </div>
+  </div>
+</section>
+<script>
+const API_URL = 'http://localhost:5000/api';
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const rememberMe = document.getElementById("rememberMe").checked;
+  const messageDiv = document.getElementById("message");
+  
+  messageDiv.textContent = "";
+  messageDiv.className = "error-message";
+  
+  if (!email || !password) {
+    messageDiv.textContent = "Please enter both email and password";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      messageDiv.textContent = data.error || "Login failed";
+      return;
+    }
+
+    if (rememberMe) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+    } else {
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+    }
+    
+    messageDiv.textContent = "Login successful! Redirecting...";
+    messageDiv.className = "success-message";
+
+    setTimeout(() => {
+      const role = data.user.role;
+      if (role === "director") {
+        window.location.href = "director-dashboard.html";
+      } else if (role === "admin") {
+        window.location.href = "admin-dashboard.html";
+      } else if (role === "facilitator") {
+        window.location.href = "facilitator-dashboard.html";
+      } else if (role === "member") {
+        window.location.href = "member-dashboard.html";
+      } else {
+        window.location.href = "member-dashboard.html";
+      }
+    }, 1000);
+    
+  } catch (error) {
+    console.error("Login error:", error);
+    messageDiv.textContent = "Network error. Check if server is running on port 5000";
+  }
+}
+</script>
+</body>
+</html>

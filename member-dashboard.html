@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Member Dashboard - Rendezvous Youth Group</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+    }
+
+    .header {
+      background: #111;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid #222;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      width: 250px;
+      height: calc(100vh - 70px);
+      background: #111;
+      border-right: 1px solid #222;
+    }
+
+    .menu-item {
+      padding: 12px 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #aaa;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .main-content {
+      margin-left: 250px;
+      margin-top: 70px;
+      padding: 30px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .activity-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      padding: 8px 20px;
+      background: #fff;
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 10px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #fff;
+      color: #fff;
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      background: #2c3e50;
+    }
+
+    .badge-upcoming {
+      background: #f39c12;
+      color: #000;
+    }
+
+    .badge-completed {
+      background: #27ae60;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo"><i class="fas fa-hand-holding-heart"></i> Rendezvous Youth Group</div>
+    <div class="user-info"><span id="userName">Loading...</span><img id="userAvatar"
+        src="https://via.placeholder.com/40" alt="Profile"></div>
+  </header>
+  <aside class="sidebar">
+    <div class="menu-item active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+    <div class="menu-item" data-page="activities"><i class="fas fa-calendar-alt"></i> My Activities</div>
+    <div class="menu-item" data-page="profile"><i class="fas fa-user"></i> Profile</div>
+    <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+  </aside>
+  <main class="main-content" id="mainContent">
+    <div style="text-align:center; padding:50px;">Loading dashboard...</div>
+  </main>
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+    let currentUser = null;
+    let activities = [];
+
+    async function loadUser() {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      if (!token) { window.location.href = 'index.html'; return; }
+      try {
+        const res = await fetch(`${API_URL}/auth/me`, { headers: { 'Authorization': token } });
+        if (!res.ok) throw new Error();
+        currentUser = await res.json();
+        document.getElementById('userName').textContent = currentUser.name;
+        if (currentUser.profilePicture) document.getElementById('userAvatar').src = currentUser.profilePicture;
+        await loadActivities();
+      } catch (error) { logout(); }
+    }
+
+    async function loadActivities() {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const res = await fetch(`${API_URL}/activities`, { headers: { 'Authorization': token } });
+      activities = await res.json();
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const myActivities = activities.filter(a => a.participants?.includes(currentUser.id));
+      const upcoming = myActivities.filter(a => a.status === 'upcoming');
+      const completed = myActivities.filter(a => a.status === 'completed');
+      document.getElementById('mainContent').innerHTML = `
+    <h2>Welcome, ${currentUser.name}!</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><h3>Activities Joined</h3><div class="stat-number">${myActivities.length}</div></div>
+      <div class="stat-card"><h3>Upcoming</h3><div class="stat-number">${upcoming.length}</div></div>
+      <div class="stat-card"><h3>Completed</h3><div class="stat-number">${completed.length}</div></div>
+    </div>
+    <h3>Upcoming Activities</h3>
+    ${upcoming.map(a => `<div class="activity-card"><strong>${a.title}</strong> - ${new Date(a.date).toLocaleDateString()}<br>${a.location}<br><span class="badge badge-upcoming">${a.status}</span><br><button class="btn btn-outline" style="margin-top:10px;" onclick="cancelRegistration('${a._id}')">Cancel Registration</button></div>`).join('')}
+    ${upcoming.length === 0 ? '<p>No upcoming activities</p>' : ''}
+    <h3 style="margin-top:20px;">Completed Activities</h3>
+    ${completed.map(a => `<div class="activity-card"><strong>${a.title}</strong> - ${new Date(a.date).toLocaleDateString()}<br><span class="badge badge-completed">${a.status}</span></div>`).join('')}
+  `;
+    }
+
+    async function cancelRegistration(activityId) {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      await fetch(`${API_URL}/activities/${activityId}/cancel-registration`, {
+        method: 'POST', headers: { 'Authorization': token, 'Content-Type': 'application/json' }
+      });
+      loadActivities();
+    }
+
+    function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'index.html'; }
+    loadUser();
+  </script>
+</body>
+
+</html>

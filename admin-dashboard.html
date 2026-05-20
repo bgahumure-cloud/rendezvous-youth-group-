@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendezvous Youth - Admin Screening Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .profile-section {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-avatar:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .profile-avatar i {
+            font-size: 3rem;
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .profile-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .profile-details {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+        
+        .edit-profile-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .edit-profile-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav .nav-item {
+            padding: 12px 25px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-nav .nav-item:hover, .sidebar-nav .nav-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid #ffd700;
+        }
+        
+        .sidebar-nav .nav-item i {
+            font-size: 1.2rem;
+            width: 25px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Cards */
+        .card-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .screening-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .screening-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .screening-pending {
+            border-left-color: #f39c12;
+            background: #fff9e6;
+        }
+        
+        .screening-confirmed {
+            border-left-color: #27ae60;
+            background: #e8f5e9;
+        }
+        
+        .available-badge {
+            background: #e8f5e9;
+            color: #27ae60;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-available {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-available:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(39,174,96,0.3);
+        }
+        
+        .btn-unavailable {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        /* Modal Styles */
+        .modal-custom {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content-custom {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        .notification-badge {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+        
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-left: 4px solid #3498db;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 3000;
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .reset-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            margin-left: 10px;
+        }
+        
+        .reset-btn:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -280px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="profile-avatar" onclick="editProfile()">
+                <i class="bi bi-person-circle"></i>
+                <img id="profileAvatar" style="display: none;">
+            </div>
+            <div class="profile-name" id="profileName">Admin User</div>
+            <div class="profile-role" id="profileRole">System Administrator</div>
+            <div class="profile-details" id="profileDetails"></div>
+            <button class="edit-profile-btn" onclick="editProfile()">
+                <i class="bi bi-pencil"></i> Edit Profile
+            </button>
+            <button class="edit-profile-btn reset-btn" onclick="resetDemoData()">
+                <i class="bi bi-arrow-repeat"></i> Reset Demo
+            </button>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item active" data-page="dashboard">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </div>
+            <div class="nav-item" data-page="screenings">
+                <i class="bi bi-film"></i> Screenings
+                <span id="screeningNotificationBadge" class="notification-badge" style="display: none;"></span>
+            </div>
+            <div class="nav-item" data-page="facilitators">
+                <i class="bi bi-people"></i> Facilitators
+            </div>
+            <div class="nav-item" data-page="history">
+                <i class="bi bi-clock-history"></i> History
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-bar">
+            <h4 id="page-title"><i class="bi bi-speedometer2"></i> Admin Dashboard</h4>
+            <div>
+                <i class="bi bi-bell"></i> <span id="notificationCount">0</span>
+                <button class="btn btn-sm btn-outline-danger ms-3" onclick="resetDemoData()">
+                    <i class="bi bi-arrow-repeat"></i> Reset Demo
+                </button>
+            </div>
+        </div>
+        
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page-content active">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card-custom text-center">
+                        <i class="bi bi-film" style="font-size: 2.5rem; color: #2a5298;"></i>
+                        <div class="display-4" id="totalScreenings">0</div>
+                        <div class="text-muted">Total Screenings</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-custom text-center">
+                        <i class="bi bi-calendar-check" style="font-size: 2.5rem; color: #27ae60;"></i>
+                        <div class="display-4" id="upcomingScreenings">0</div>
+                        <div class="text-muted">Upcoming</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-custom text-center">
+                        <i class="bi bi-person-check" style="font-size: 2.5rem; color: #f39c12;"></i>
+                        <div class="display-4" id="totalAvailable">0</div>
+                        <div class="text-muted">Total Available Slots</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-custom">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="bi bi-plus-circle"></i> Create New Screening</h5>
+                    <button class="btn btn-primary" onclick="showCreateScreeningModal()">
+                        <i class="bi bi-plus"></i> Post Screening
+                    </button>
+                </div>
+                <div id="recentScreenings"></div>
+            </div>
+        </div>
+        
+        <!-- Screenings Page -->
+        <div id="screenings-page" class="page-content">
+            <div class="card-custom">
+                <h5><i class="bi bi-film"></i> All Screenings</h5>
+                <div id="allScreeningsList"></div>
+            </div>
+        </div>
+        
+        <!-- Facilitators Page -->
+        <div id="facilitators-page" class="page-content">
+            <div class="card-custom">
+                <h5><i class="bi bi-people"></i> Registered Facilitators</h5>
+                <div id="facilitatorsList"></div>
+            </div>
+        </div>
+        
+        <!-- History Page -->
+        <div id="history-page" class="page-content">
+            <div class="card-custom">
+                <h5><i class="bi bi-clock-history"></i> Screening History</h5>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Screening Modal -->
+    <div id="createScreeningModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="p-4">
+                <h4 class="mb-3">Post New Screening</h4>
+                <form id="createScreeningForm">
+                    <div class="mb-3">
+                        <label class="form-label">Film Title *</label>
+                        <input type="text" class="form-control" id="filmTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Film Topic *</label>
+                        <input type="text" class="form-control" id="filmTopic" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="screeningDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Time *</label>
+                            <input type="time" class="form-control" id="screeningTime" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location *</label>
+                        <input type="text" class="form-control" id="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Community *</label>
+                        <input type="text" class="form-control" id="community" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Expected Attendees</label>
+                        <input type="number" class="form-control" id="expectedAttendees" value="50">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">Post Screening</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('createScreeningModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Screening Modal -->
+    <div id="viewScreeningModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="p-4" id="viewScreeningContent"></div>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="p-4">
+                <h4 class="mb-3">Edit Profile</h4>
+                <form id="editProfileForm">
+                    <div class="text-center mb-3">
+                        <div class="profile-avatar-edit" style="width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <i class="bi bi-camera" style="font-size: 2rem;"></i>
+                            <input type="file" id="avatarUpload" style="display: none;" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="editPhone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bio / About Me</label>
+                        <textarea class="form-control" id="editBio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ==================== DEMO DATA (No API Required) ====================
+        let screenings = [];
+        let facilitators = [];
+        let notifications = [];
+        let currentUser = {
+            id: 'admin1',
+            name: 'Admin User',
+            email: 'admin@rendezvous.org',
+            role: 'admin',
+            phone: '+256 700 123456',
+            bio: 'System Administrator at Rendezvous Youth Group, passionate about using film for social impact and youth empowerment.',
+            avatar: null
+        };
+        
+        let currentPage = 'dashboard';
+        
+        // Helper Functions
+        function getFutureDate(days) {
+            const date = new Date();
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        }
+        
+        function getPastDate(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            return date.toISOString().split('T')[0];
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification alert alert-${type} alert-dismissible fade show`;
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function loadSavedData() {
+            const savedScreenings = localStorage.getItem('rendezvous_screenings');
+            const savedFacilitators = localStorage.getItem('rendezvous_facilitators');
+            const savedUser = localStorage.getItem('rendezvous_admin_user');
+            
+            if (savedScreenings) {
+                screenings = JSON.parse(savedScreenings);
+            } else {
+                // Demo screenings data
+                screenings = [
+                    {
+                        id: 'scr_1',
+                        filmTitle: 'Breaking Barriers',
+                        filmTopic: 'Education for All',
+                        description: 'A powerful documentary about overcoming educational challenges in refugee communities. Features inspiring stories of young people who pursued education against all odds.',
+                        date: getFutureDate(5),
+                        time: '14:00',
+                        location: 'Kampala Community Center',
+                        community: 'Kampala',
+                        expectedAttendees: 80,
+                        status: 'upcoming',
+                        createdAt: new Date().toISOString(),
+                        availableFacilitators: [
+                            { id: 'fac1', name: 'Sarah Namatovu', email: 'sarah@rendezvous.org', confirmed: true },
+                            { id: 'fac2', name: 'John Ochieng', email: 'john@rendezvous.org', confirmed: true }
+                        ]
+                    },
+                    {
+                        id: 'scr_2',
+                        filmTitle: 'Voices of Hope',
+                        filmTopic: 'Mental Health',
+                        description: 'A film addressing mental health challenges among youth in Uganda, featuring real stories and expert insights.',
+                        date: getFutureDate(10),
+                        time: '10:00',
+                        location: 'Nakivale Settlement',
+                        community: 'Nakivale',
+                        expectedAttendees: 100,
+                        status: 'upcoming',
+                        createdAt: new Date().toISOString(),
+                        availableFacilitators: [
+                            { id: 'fac1', name: 'Sarah Namatovu', email: 'sarah@rendezvous.org', confirmed: true }
+                        ]
+                    },
+                    {
+                        id: 'scr_3',
+                        filmTitle: 'Our Land, Our Future',
+                        filmTopic: 'Environmental Conservation',
+                        description: 'Documentary about youth-led environmental initiatives and conservation efforts across Uganda.',
+                        date: getFutureDate(15),
+                        time: '13:30',
+                        location: 'Jinja Community Hall',
+                        community: 'Jinja',
+                        expectedAttendees: 120,
+                        status: 'upcoming',
+                        createdAt: new Date().toISOString(),
+                        availableFacilitators: []
+                    },
+                    {
+                        id: 'scr_4',
+                        filmTitle: 'Digital Dreams',
+                        filmTopic: 'Technology & Innovation',
+                        description: 'Showcasing young tech innovators and their journey in the digital economy.',
+                        date: getPastDate(7),
+                        time: '09:00',
+                        location: 'Gulu Youth Center',
+                        community: 'Gulu',
+                        expectedAttendees: 65,
+                        status: 'completed',
+                        createdAt: new Date(Date.now() - 14 * 86400000).toISOString(),
+                        availableFacilitators: [
+                            { id: 'fac2', name: 'John Ochieng', email: 'john@rendezvous.org', confirmed: true },
+                            { id: 'fac3', name: 'Grace Achieng', email: 'grace@rendezvous.org', confirmed: true }
+                        ]
+                    },
+                    {
+                        id: 'scr_5',
+                        filmTitle: 'Women Rising',
+                        filmTopic: 'Gender Equality',
+                        description: 'Celebrating women leaders and changemakers in local communities.',
+                        date: getPastDate(3),
+                        time: '15:00',
+                        location: 'Mbarara Cultural Center',
+                        community: 'Mbarara',
+                        expectedAttendees: 150,
+                        status: 'completed',
+                        createdAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+                        availableFacilitators: [
+                            { id: 'fac3', name: 'Grace Achieng', email: 'grace@rendezvous.org', confirmed: true }
+                        ]
+                    }
+                ];
+            }
+            
+            if (savedFacilitators) {
+                facilitators = JSON.parse(savedFacilitators);
+            } else {
+                // Demo facilitators data
+                facilitators = [
+                    {
+                        id: 'fac1',
+                        name: 'Pacifik ',
+                        email: 'pacifik@rendezvous.org',
+                        role: 'group cordinator',
+                        phone: '+256 701 234567',
+                        bio: 'Experienced community facilitator passionate about film and youth development. 5+ years of experience in refugee settlements. Specializes in trauma-informed facilitation and community engagement.',
+                        avatar: null,
+                        availability: ['scr_1', 'scr_2'],
+                        screeningsLed: 12
+                    },
+                    {
+                        id: 'fac2',
+                        name: 'Teta ',
+                        email: 'teta@rendezvous.org',
+                        role: 'facilitator',
+                        phone: '+256 702 345678',
+                        bio: 'Youth worker and filmmaker. Specializes in using film for social change and community engagement. Has produced 3 short documentaries on youth empowerment.',
+                        avatar: null,
+                        availability: ['scr_1', 'scr_4'],
+                        screeningsLed: 8
+                    },
+                    {
+                        id: 'fac3',
+                        name: 'sankara',
+                        email: 'sankara@rendezvous.org',
+                        role: 'director',
+                        phone: '+256 703 456789',
+                        bio: 'Program Director with focus on refugee empowerment and community outreach. Over 10 years of experience in community development and film-based interventions.',
+                        avatar: null,
+                        availability: ['scr_4', 'scr_5'],
+                        screeningsLed: 15
+                    },
+                    {
+                        id: 'fac4',
+                        name: 'Maeva',
+                        email: 'Maeva@rendezvous.org',
+                        role: 'facilitator',
+                        phone: '+256 704 567890',
+                        bio: 'Media trainer and documentary filmmaker. Passionate about telling stories that drive social change.',
+                        avatar: null,
+                        availability: [],
+                        screeningsLed: 5
+                    }
+                ];
+            }
+            
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+            }
+            
+            // Load notifications
+            const savedNotifications = localStorage.getItem('rendezvous_admin_notifications');
+            if (savedNotifications) {
+                notifications = JSON.parse(savedNotifications);
+            } else {
+                notifications = [
+                    { id: 'notif1', screeningId: 'scr_1', title: 'Breaking Barriers', message: '2 facilitators have confirmed availability', read: false, createdAt: new Date().toISOString() },
+                    { id: 'notif2', screeningId: 'scr_2', title: 'Voices of Hope', message: '1 facilitator has confirmed availability', read: false, createdAt: new Date().toISOString() }
+                ];
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('rendezvous_screenings', JSON.stringify(screenings));
+            localStorage.setItem('rendezvous_facilitators', JSON.stringify(facilitators));
+            localStorage.setItem('rendezvous_admin_user', JSON.stringify(currentUser));
+            localStorage.setItem('rendezvous_admin_notifications', JSON.stringify(notifications));
+        }
+        
+        function resetDemoData() {
+            if (confirm('Reset all demo data to original state? This will restore all default screenings and facilitators.')) {
+                localStorage.removeItem('rendezvous_screenings');
+                localStorage.removeItem('rendezvous_facilitators');
+                localStorage.removeItem('rendezvous_admin_user');
+                localStorage.removeItem('rendezvous_admin_notifications');
+                location.reload();
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            loadProfile();
+            setupNavigation();
+            updateDashboard();
+            renderScreenings();
+            renderFacilitators();
+            renderHistory();
+            setupFormSubmit();
+            updateNotificationBadge();
+        });
+        
+        function loadProfile() {
+            document.getElementById('profileName').innerText = currentUser.name;
+            document.getElementById('profileRole').innerText = currentUser.role === 'admin' ? 'System Administrator' : 
+                                                              currentUser.role === 'director' ? 'Program Director' : 'Facilitator';
+            document.getElementById('profileDetails').innerHTML = `
+                <i class="bi bi-envelope"></i> ${currentUser.email}<br>
+                <i class="bi bi-telephone"></i> ${currentUser.phone || 'No phone'}
+            `;
+            
+            if (currentUser.avatar) {
+                const avatarImg = document.querySelector('.profile-avatar img');
+                const avatarIcon = document.querySelector('.profile-avatar i');
+                avatarImg.src = currentUser.avatar;
+                avatarImg.style.display = 'block';
+                avatarIcon.style.display = 'none';
+            }
+        }
+        
+        function setupNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPage = this.dataset.page;
+                    
+                    const pageNames = {
+                        dashboard: 'Admin Dashboard',
+                        screenings: 'Screening Manager',
+                        facilitators: 'Facilitators',
+                        history: 'Screening History'
+                    };
+                    document.getElementById('page-title').innerHTML = `<i class="bi ${getIconForPage(currentPage)}"></i> ${pageNames[currentPage]}`;
+                    
+                    document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
+                    document.getElementById(`${currentPage}-page`).classList.add('active');
+                    
+                    switch(currentPage) {
+                        case 'dashboard': updateDashboard(); break;
+                        case 'screenings': renderScreenings(); break;
+                        case 'facilitators': renderFacilitators(); break;
+                        case 'history': renderHistory(); break;
+                    }
+                });
+            });
+        }
+        
+        function getIconForPage(page) {
+            const icons = {
+                dashboard: 'bi-speedometer2',
+                screenings: 'bi-film',
+                facilitators: 'bi-people',
+                history: 'bi-clock-history'
+            };
+            return icons[page];
+        }
+        
+        function updateDashboard() {
+            const upcoming = screenings.filter(s => s.status === 'upcoming').length;
+            const total = screenings.length;
+            const totalAvailable = screenings.reduce((sum, s) => sum + (s.availableFacilitators?.length || 0), 0);
+            
+            document.getElementById('totalScreenings').innerText = total;
+            document.getElementById('upcomingScreenings').innerText = upcoming;
+            document.getElementById('totalAvailable').innerText = totalAvailable;
+            
+            const recent = screenings.slice(0, 3);
+            const recentHtml = recent.map(screening => `
+                <div class="screening-card ${screening.status === 'upcoming' ? 'screening-pending' : 'screening-confirmed'} p-3 mb-2" onclick="viewScreening('${screening.id}')">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>${escapeHtml(screening.filmTitle)}</strong>
+                            <div class="small text-muted">${screening.date} at ${screening.time} - ${screening.location}</div>
+                        </div>
+                        <span class="badge bg-${screening.status === 'upcoming' ? 'warning' : 'success'}">${screening.status}</span>
+                    </div>
+                    <div class="mt-2">
+                        <small><i class="bi bi-person-check"></i> ${screening.availableFacilitators?.length || 0} facilitators available</small>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('recentScreenings').innerHTML = recentHtml || '<p class="text-muted">No screenings yet. Click "Post Screening" to create one.</p>';
+        }
+        
+        function renderScreenings() {
+            const upcomingScreenings = screenings.filter(s => s.status === 'upcoming');
+            const html = upcomingScreenings.map(screening => `
+                <div class="screening-card ${screening.status === 'upcoming' ? 'screening-pending' : 'screening-confirmed'} p-3 mb-2" onclick="viewScreening('${screening.id}')">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <strong class="fs-5">${escapeHtml(screening.filmTitle)}</strong>
+                                <span class="badge bg-${screening.status === 'upcoming' ? 'warning' : 'success'}">${screening.status}</span>
+                            </div>
+                            <div class="row small">
+                                <div class="col-md-6">
+                                    <i class="bi bi-calendar"></i> ${screening.date} at ${screening.time}<br>
+                                    <i class="bi bi-geo-alt"></i> ${escapeHtml(screening.location)}
+                                </div>
+                                <div class="col-md-6">
+                                    <i class="bi bi-building"></i> ${escapeHtml(screening.community)}<br>
+                                    <i class="bi bi-people"></i> Expected: ${screening.expectedAttendees}
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">${escapeHtml(screening.description.substring(0, 100))}${screening.description.length > 100 ? '...' : ''}</small>
+                            </div>
+                            ${screening.availableFacilitators?.length > 0 ? `
+                                <div class="mt-2">
+                                    <strong><i class="bi bi-person-check"></i> Available Facilitators:</strong>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        ${screening.availableFacilitators.map(f => `
+                                            <span class="available-badge">
+                                                <i class="bi bi-person-check-fill"></i> ${escapeHtml(f.name)}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : '<div class="mt-2 text-muted small"><i class="bi bi-clock"></i> No facilitators available yet</div>'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('allScreeningsList').innerHTML = html || '<p class="text-muted">No upcoming screenings scheduled</p>';
+        }
+        
+        function renderFacilitators() {
+            const html = facilitators.map(facilitator => `
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex gap-3">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center;">
+                            ${facilitator.avatar ? `<img src="${facilitator.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : 
+                                `<i class="bi bi-person-circle" style="font-size: 2.5rem;"></i>`}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>${escapeHtml(facilitator.name)}</strong>
+                                    <div class="small text-muted">${escapeHtml(facilitator.email)}</div>
+                                    <div class="small"><i class="bi bi-telephone"></i> ${facilitator.phone || 'No phone'}</div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-${facilitator.role === 'director' ? 'warning' : 'info'}">${facilitator.role}</span>
+                                    <div class="small mt-1"><i class="bi bi-film"></i> ${facilitator.screeningsLed} screenings</div>
+                                </div>
+                            </div>
+                            <div class="small mt-2"><i class="bi bi-chat"></i> ${escapeHtml(facilitator.bio || 'No bio added yet')}</div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewFacilitatorAvailability('${facilitator.id}')">
+                                    <i class="bi bi-calendar"></i> View Availability
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('facilitatorsList').innerHTML = html || '<p class="text-muted">No facilitators registered</p>';
+        }
+        
+        function renderHistory() {
+            const completed = screenings.filter(s => s.status === 'completed');
+            const html = completed.map(screening => `
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>${escapeHtml(screening.filmTitle)}</strong>
+                            <div class="small text-muted">${screening.date} at ${screening.time}</div>
+                            <div class="small">${escapeHtml(screening.location)} - ${escapeHtml(screening.community)}</div>
+                        </div>
+                        <span class="badge bg-secondary">Completed</span>
+                    </div>
+                    <div class="small mt-2">
+                        <i class="bi bi-people"></i> Expected: ${screening.expectedAttendees} | 
+                        <i class="bi bi-person-check"></i> Facilitators: ${screening.availableFacilitators?.length || 0}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('historyList').innerHTML = html || '<p class="text-muted">No completed screenings</p>';
+        }
+        
+        function showCreateScreeningModal() {
+            document.getElementById('createScreeningForm').reset();
+            document.getElementById('createScreeningModal').style.display = 'flex';
+        }
+        
+        function setupFormSubmit() {
+            document.getElementById('createScreeningForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newScreening = {
+                    id: 'scr_' + Date.now(),
+                    filmTitle: document.getElementById('filmTitle').value,
+                    filmTopic: document.getElementById('filmTopic').value,
+                    description: document.getElementById('description').value || 'No description provided',
+                    date: document.getElementById('screeningDate').value,
+                    time: document.getElementById('screeningTime').value,
+                    location: document.getElementById('location').value,
+                    community: document.getElementById('community').value,
+                    expectedAttendees: parseInt(document.getElementById('expectedAttendees').value),
+                    status: 'upcoming',
+                    createdAt: new Date().toISOString(),
+                    availableFacilitators: []
+                };
+                
+                screenings.unshift(newScreening);
+                saveData();
+                
+                closeModal('createScreeningModal');
+                updateDashboard();
+                renderScreenings();
+                
+                showToast(`✅ Screening "${newScreening.filmTitle}" posted successfully!`, 'success');
+            });
+            
+            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                currentUser.name = document.getElementById('editName').value;
+                currentUser.email = document.getElementById('editEmail').value;
+                currentUser.phone = document.getElementById('editPhone').value;
+                currentUser.bio = document.getElementById('editBio').value;
+                
+                saveData();
+                loadProfile();
+                closeModal('editProfileModal');
+                showToast('Profile updated successfully!', 'success');
+            });
+        }
+        
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('screeningNotificationBadge');
+            if (unreadCount > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = unreadCount;
+            } else {
+                badge.style.display = 'none';
+            }
+            document.getElementById('notificationCount').innerText = unreadCount;
+        }
+        
+        function viewScreening(screeningId) {
+            const screening = screenings.find(s => s.id === screeningId);
+            if (!screening) return;
+            
+            const availableFacilitatorsList = screening.availableFacilitators?.map(f => 
+                `<span class="available-badge m-1"><i class="bi bi-person-check-fill"></i> ${escapeHtml(f.name)}</span>`
+            ).join('') || '<span class="text-muted">No facilitators available yet</span>';
+            
+            const content = `
+                <h4>${escapeHtml(screening.filmTitle)}</h4>
+                <div class="mb-3">
+                    <span class="badge bg-${screening.status === 'upcoming' ? 'warning' : 'success'}">${screening.status}</span>
+                </div>
+                <div class="mb-2">
+                    <strong><i class="bi bi-tag"></i> Topic:</strong> ${escapeHtml(screening.filmTopic)}
+                </div>
+                <div class="mb-2">
+                    <strong><i class="bi bi-calendar"></i> Date & Time:</strong> ${screening.date} at ${screening.time}
+                </div>
+                <div class="mb-2">
+                    <strong><i class="bi bi-geo-alt"></i> Location:</strong> ${escapeHtml(screening.location)}
+                </div>
+                <div class="mb-2">
+                    <strong><i class="bi bi-building"></i> Community:</strong> ${escapeHtml(screening.community)}
+                </div>
+                <div class="mb-2">
+                    <strong><i class="bi bi-people"></i> Expected Attendees:</strong> ${screening.expectedAttendees}
+                </div>
+                <div class="mb-3">
+                    <strong><i class="bi bi-chat"></i> Description:</strong><br>
+                    ${escapeHtml(screening.description)}
+                </div>
+                <div class="mb-3">
+                    <strong><i class="bi bi-person-check"></i> Available Facilitators:</strong><br>
+                    <div class="mt-2">${availableFacilitatorsList}</div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-danger" onclick="deleteScreening('${screening.id}')">Delete Screening</button>
+                    <button class="btn btn-secondary" onclick="closeModal('viewScreeningModal')">Close</button>
+                </div>
+            `;
+            
+            document.getElementById('viewScreeningContent').innerHTML = content;
+            document.getElementById('viewScreeningModal').style.display = 'flex';
+        }
+        
+        function deleteScreening(screeningId) {
+            if (confirm('Are you sure you want to delete this screening?')) {
+                screenings = screenings.filter(s => s.id !== screeningId);
+                saveData();
+                closeModal('viewScreeningModal');
+                updateDashboard();
+                renderScreenings();
+                renderHistory();
+                showToast('Screening deleted successfully!', 'success');
+            }
+        }
+        
+        function editProfile() {
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editEmail').value = currentUser.email;
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editBio').value = currentUser.bio || '';
+            document.getElementById('editProfileModal').style.display = 'flex';
+            
+            const avatarUpload = document.getElementById('avatarUpload');
+            const avatarDiv = document.querySelector('.profile-avatar-edit');
+            
+            avatarDiv.onclick = () => avatarUpload.click();
+            avatarUpload.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentUser.avatar = event.target.result;
+                        saveData();
+                        loadProfile();
+                        showToast('Avatar updated successfully!', 'success');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+        }
+        
+        function viewFacilitatorAvailability(facilitatorId) {
+            const facilitator = facilitators.find(f => f.id === facilitatorId);
+            const upcomingScreenings = screenings.filter(s => s.status === 'upcoming');
+            const theirAvailability = upcomingScreenings.filter(s => 
+                s.availableFacilitators?.some(f => f.id === facilitatorId)
+            );
+            
+            const message = `📋 ${facilitator.name}'s Availability\n\n` +
+                  `✅ Available for: ${theirAvailability.length} screening(s)\n` +
+                  `${theirAvailability.map(s => `  • ${s.filmTitle} on ${s.date}`).join('\n') || '  No upcoming screenings assigned'}\n\n` +
+                  `📊 Total screenings led: ${facilitator.screeningsLed}`;
+            
+            alert(message);
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // Click outside modal to close
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-custom')) {
+                event.target.style.display = 'none';
+            }
+        };
+        
+        // Expose functions globally
+        window.showCreateScreeningModal = showCreateScreeningModal;
+        window.closeModal = closeModal;
+        window.viewScreening = viewScreening;
+        window.deleteScreening = deleteScreening;
+        window.editProfile = editProfile;
+        window.viewFacilitatorAvailability = viewFacilitatorAvailability;
+        window.resetDemoData = resetDemoData;
+    </script>
+</body>
+</html>

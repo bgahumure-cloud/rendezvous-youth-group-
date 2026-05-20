@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rendezvous Youth Group - Sign Up</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+              url('https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.signup-box {
+  width: 500px;
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.signup-box h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+  color: #ccc;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  background: rgba(255,255,255,0.15);
+}
+
+.input-group textarea {
+  border-radius: 20px;
+  resize: vertical;
+}
+
+.role-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.role-card {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.role-card.selected {
+  background: rgba(255,255,255,0.2);
+  border-color: #fff;
+}
+
+.role-card i {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.role-card span {
+  font-size: 12px;
+}
+
+.signup-btn {
+  width: 100%;
+  padding: 14px;
+  background: #fff;
+  border: none;
+  border-radius: 30px;
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.signup-btn:hover {
+  background: #ddd;
+  transform: translateY(-2px);
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.login-link a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.error-message {
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.success-message {
+  color: #4caf50;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .signup-box {
+    width: 100%;
+    padding: 30px 20px;
+  }
+  .role-selector {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="signup-box">
+  <h2>Create Account</h2>
+  <form id="signupForm">
+    <div class="input-group">
+      <input type="text" id="name" placeholder="Full Name" required>
+    </div>
+    <div class="input-group">
+      <input type="email" id="email" placeholder="Email Address" required>
+    </div>
+    <div class="input-group">
+      <input type="tel" id="phone" placeholder="Phone Number">
+    </div>
+    <div class="input-group">
+      <input type="text" id="nationality" placeholder="Nationality">
+    </div>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Password (min 6 characters)" required>
+    </div>
+    <div class="input-group">
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+    </div>
+    
+    <div class="role-selector" id="roleSelector">
+      <div class="role-card" data-role="member" onclick="selectRole('member')">
+        <i class="fas fa-user"></i><span>Member</span>
+      </div>
+      <div class="role-card" data-role="facilitator" onclick="selectRole('facilitator')">
+        <i class="fas fa-chalkboard-user"></i><span>Facilitator</span>
+      </div>
+      <div class="role-card" data-role="volunteer" onclick="selectRole('volunteer')">
+        <i class="fas fa-hands-helping"></i><span>Volunteer</span>
+      </div>
+    </div>
+    <input type="hidden" id="role" value="member">
+    
+    <div id="specialtyField" style="display:none;">
+      <div class="input-group">
+        <select id="specialty">
+          <option value="">Select Specialty</option>
+          <option value="Advocacy & Training">Advocacy & Training</option>
+          <option value="Music, Dance & Drama">Music, Dance & Drama</option>
+          <option value="Film Screening & Mental Health">Film Screening & Mental Health</option>
+          <option value="Community Outreach">Community Outreach</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="input-group">
+      <textarea id="bio" rows="2" placeholder="Tell us about yourself (optional)"></textarea>
+    </div>
+    
+    <button type="submit" class="signup-btn">Create Account</button>
+    <div id="message" class="error-message"></div>
+    <div class="login-link">
+      Already have an account? <a href="index.html">Login here</a>
+    </div>
+  </form>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+const API_URL = 'http://localhost:5000/api';
+
+function selectRole(role) {
+  document.getElementById('role').value = role;
+  document.querySelectorAll('.role-card').forEach(card => {
+    card.classList.remove('selected');
+    if (card.getAttribute('data-role') === role) {
+      card.classList.add('selected');
+    }
+  });
+  const specialtyField = document.getElementById('specialtyField');
+  specialtyField.style.display = role === 'facilitator' ? 'block' : 'none';
+}
+
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('confirmPassword').value;
+  const phone = document.getElementById('phone').value;
+  const nationality = document.getElementById('nationality').value;
+  const role = document.getElementById('role').value;
+  const specialty = document.getElementById('specialty')?.value;
+  const bio = document.getElementById('bio').value;
+  const messageDiv = document.getElementById('message');
+  
+  messageDiv.textContent = '';
+  
+  if (!name || name.length < 3) {
+    messageDiv.textContent = 'Name must be at least 3 characters';
+    return;
+  }
+  
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    messageDiv.textContent = 'Please enter a valid email';
+    return;
+  }
+  
+  if (!password || password.length < 6) {
+    messageDiv.textContent = 'Password must be at least 6 characters';
+    return;
+  }
+  
+  if (password !== confirm) {
+    messageDiv.textContent = 'Passwords do not match';
+    return;
+  }
+  
+  try {
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role, phone, nationality, specialty, bio })
+    });
+    
+    const data = await res.json();
+    
+    if (!res.ok) {
+      messageDiv.textContent = data.error || 'Registration failed';
+      return;
+    }
+    
+    messageDiv.style.color = '#4caf50';
+    messageDiv.textContent = 'Account created successfully! Redirecting to login...';
+    
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 2000);
+    
+  } catch (error) {
+    messageDiv.textContent = 'Network error. Make sure server is running on port 5000';
+  }
+});
+
+// Set default selected role
+document.querySelector('.role-card[data-role="member"]').classList.add('selected');
+</script>
+</body>
+</html>
